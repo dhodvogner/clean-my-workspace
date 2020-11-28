@@ -1,4 +1,7 @@
+#!/usr/bin/env node
+
 import * as readline from 'readline';
+import * as path from 'path';
 
 import bodyParser from 'body-parser';
 import express from 'express';
@@ -11,24 +14,29 @@ import { getFolders } from './src/get-folders.mjs';
 
 showLogo();
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+if (process.argv.length <= 2) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
 
-rl.question('Where is your Workplace folder? ', (path) => {
-  cleanMyWorkspace(path);
-  rl.close();
-});
+  rl.question('Where is your Workplace folder? ', (workspacePath) => {
+    cleanMyWorkspace(workspacePath);
+    rl.close();
+  });
+}
+else {
+  cleanMyWorkspace(process.argv[2]);
+}
 
-function getResults(path) {
+function getResults(workspacePath) {
   const spinner = ora('🧭 Exploring your Workspace').start();
 
   const results = [];
-  const folders = getFolders(path);
+  const folders = getFolders(workspacePath);
 
   folders.forEach(folder => {
-    const info = collectInfo(folder, `${path}/${folder}`);
+    const info = collectInfo(folder, `${workspacePath}/${folder}`);
     results.push(info);
   });
   spinner.succeed('🧭 Exploring your Workspace');
@@ -36,13 +44,17 @@ function getResults(path) {
   return results;
 }
 
-function cleanMyWorkspace(path) {
-  let results = getResults(path);
+function cleanMyWorkspace(workspacePath) {
+  let results = getResults(workspacePath);
 
   console.log('🚀 Starting server...');
   const app = express();
 
-  app.get('/', express.static('./public'));
+  const appDir = path.dirname(import.meta.url).replace('file://', '');
+  const publicDir = path.resolve(appDir + '/public');
+  console.info('Public dir: ', publicDir);
+  
+  app.get('/', express.static(publicDir));
   app.get('/results', (req, res) => res.send(results));
 
   const jsonParser = bodyParser.json();
@@ -60,7 +72,7 @@ function cleanMyWorkspace(path) {
     }
 
     spinner.succeed(`💀 Deleting node_modules of ${project.name}`);
-    results = getResults(path);
+    results = getResults(workspacePath);
     return res.status(200).send('OK');
   });
 
