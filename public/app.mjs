@@ -58,12 +58,12 @@ let _hideWithRepo = false;
     return Math.ceil(percantage / numOfCriterias * 100);
   }
 
-  function render(data, projects) {
+  function render(path, projects) {
     const app = document.querySelector('#app');
     app.innerHTML = '';
 
     app.innerHTML = `
-      <h1 class="subtitle">${data.path}</h1>
+      <h1 class="subtitle">${path}</h1>
     `;
 
     projects.forEach(project => {
@@ -149,8 +149,8 @@ let _hideWithRepo = false;
     .then(response => response.json())
     .then(data => {
       render(
-        data,
-        data.results
+        data.path,
+        data.projects
           .filter(filterHideWithoutPackageJson)
           .filter(filterHideWithoutNodeModules)
           .filter(filterHasRepo)
