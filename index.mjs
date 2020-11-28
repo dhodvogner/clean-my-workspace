@@ -41,7 +41,10 @@ function getResults(workspacePath) {
   });
   spinner.succeed('🧭 Exploring your Workspace');
 
-  return results;
+  return {
+    path: workspacePath,
+    results
+  };
 }
 
 function cleanMyWorkspace(workspacePath) {
@@ -53,8 +56,8 @@ function cleanMyWorkspace(workspacePath) {
   const appDir = path.dirname(import.meta.url).replace('file://', '');
   const publicDir = path.resolve(appDir + '/public');
   console.info('Public dir: ', publicDir);
-  
-  app.get('/', express.static(publicDir));
+  app.use(express.static(publicDir));
+
   app.get('/results', (req, res) => res.send(results));
 
   const jsonParser = bodyParser.json();

@@ -1,154 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clean My Workspace</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.1/css/bulma.min.css"
+    integrity="sha512-ZRv40llEogRmoWgZwnsqke3HNzJ0kiI0+pcMgiz2bxO6Ew1DVBtWjVn0qjrXdT3+u+pSN36gLgmJiiQ3cQtyzA=="
+    crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+    integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+    crossorigin="anonymous"></script>
+  <style>
+    .project-estimate {
+      display: block;
+      width: 60px;
+      height: 60px;
+      border: 6px solid grey;
+      border-radius: 50%;
+      line-height: 46px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .project-estimate.okay {
+      border: 6px solid hsl(141, 53%, 53%);
+    }
+
+    .project-estimate.warning {
+      border: 6px solid hsl(204, 86%, 53%);
+    }
+
+    .project-estimate.danger {
+      border: 6px solid hsl(348, 100%, 61%);
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Clean My Workspace</h1>
-  <div>
-    Highlight dates more than <input id="dateHighlightLimit" type="number" value="3" min="1"> months ago.
-  </div>
-  <div>
-    <input type="checkbox" id="hideWithoutNodeModules"> Hide projects without node_modules.
-  </div>
-  <div>
-    <input type="checkbox" id="hideWithRepo"> Hide projects with repositories.
-  </div>
-  <div>
-    <input type="checkbox" id="hideWithoutPackageJson" checked> Hide projects without package.json.
-  </div>
-  <div id="app"></div>
+  <nav class="navbar is-info" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+        Clean My Workspace
+      </a>
+    </div>
+  </nav>
 
-  <script>
-    let _hideWithRepo = false;
-    let _hideWithoutNodeModules = false;
-    let _hideWithoutPackageJson = true;
-    let _dateHighlightLimit = 3;
 
-    document.querySelector('#dateHighlightLimit').addEventListener('change', evt => {
-      _dateHighlightLimit = document.querySelector('#dateHighlightLimit').value;
-      fetchData();
-    });
+  <section class="section">
+    <div class="container">
 
-    document.querySelector('#hideWithoutNodeModules').addEventListener('change', evt => {
-      _hideWithoutNodeModules = document.querySelector('#hideWithoutNodeModules').checked;
-      fetchData();
-    });
+      <div class="columns">
+        <div class="column is-one-third">
 
-    document.querySelector('#hideWithRepo').addEventListener('change', evt => {
-      _hideWithRepo = document.querySelector('#hideWithRepo').checked;
-      fetchData();
-    });
+          <div class="field">
+            <label class="label">Highlight dates more than <i>N</i> months ago.</label>
+            <div class="control">
+              <input id="dateHighlightLimit" type="number" value="3" min="1">
+            </div>
+          </div>
 
-    document.querySelector('#hideWithoutPackageJson').addEventListener('change', evt => {
-      _hideWithoutPackageJson = document.querySelector('#hideWithoutPackageJson').checked;
-      fetchData();
-    });
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" id="hideWithoutNodeModules">
+                Hide projects without node_modules.
+              </label>
+            </div>
+          </div>
 
-    function highlightDate(date) {
-      const compareDate = moment().subtract(_dateHighlightLimit, 'months');
-      const currentDate = moment(date);
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" id="hideWithRepo">
+                Hide projects with repositories.
+              </label>
+            </div>
+          </div>
 
-      if(currentDate.isBefore(compareDate)) {
-        return `<span style="color: red">${currentDate.format('LLLL')}</span>`;
-      }
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox" id="hideWithoutPackageJson" checked>
+                Hide projects without package.json.
+              </label>
+            </div>
+          </div>
+        </div>
 
-      return `${currentDate.format('LLLL')}`;
-    }
+        <div class="column">
+          <div id="app"></div>
+        </div>
 
-    function render(data) {
-      const app = document.querySelector('#app');
-      app.innerHTML = '';
+      </div>
 
-      data.forEach(project => {
-        const div = document.createElement('div');
+    </div>
+  </section>
 
-        div.innerHTML = `
-          <h2>${project.name}</h2>
-          <b>Last Access:</b> ${highlightDate(project.lastAccessTime)} <br/>
-          <b>Last Modified:</b> ${highlightDate(project.lastModifiedTime)} <br/>
-          <b>Created:</b> ${moment(project.birthTime).format('LLLL')} <br/>
-          <br/>
-          <b>Node version:</b> ${project.nodeVersion} <br/>
-          <br/>
-          <b>Has .nvmrc:</b> ${project.hasNVMRc ? 'Yes' : 'No'} <br/>
-          <b>Has package.json:</b> ${project.hasPackageJson ? 'Yes' : 'No'} <br/>
-          <b>Has node_modules folder:</b> ${project.hasNodeModules ? 'Yes' : 'No'} <br/>
-          <b>Has repository:</b> ${project.hasRepo ? 'Yes' : 'No'} <br/>
-          <br/>
-          <button 
-            style="display: ${project.hasNodeModules ? 'block' : 'none'}" 
-            id="delete-node-modules-${project.name}"
-            >
-              Delete node_modules
-          </button>
-        `;
-
-        app.append(div);
-
-        if(project.hasNodeModules) {
-          div.querySelector(`#delete-node-modules-${project.name}`).addEventListener('click', () => {
-            deleteNodeModules(project);
-          });
-        }
-      });
-    }
-
-    function filterHideWithoutNodeModules(d) {
-      if (_hideWithoutNodeModules)
-      return !(d.hasNodeModules === false)
-
-      return true;
-    }
-
-    function filterHasRepo(d) {
-      if (_hideWithRepo)
-        return !(d.hasRepo === true)
-
-      return true;
-    }
-
-    function filterHideWithoutPackageJson(d) {
-      if (_hideWithoutPackageJson)
-        return !(d.hasPackageJson === false)
-
-      return true;
-    }
-
-    function fetchData() {
-      fetch('http://localhost:3000/results')
-      .then(response => response.json())
-      .then(data => {
-        render(
-          data
-            .filter(filterHideWithoutPackageJson)
-            .filter(filterHideWithoutNodeModules)
-            .filter(filterHasRepo)
-        );
-      });
-    }
-
-    function deleteNodeModules(project) {
-      fetch(
-        'http://localhost:3000/delete-node-modules',
-        {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(project)
-        }
-      ).then(response => {
-        fetchData();
-        alert(`Delete node_modules of ${project.name}: ${response.statusText}`);
-      });
-    }
-
-    fetchData();
-  </script>
+  <script type="module" src="app.mjs"></script>
 </body>
+
 </html>
