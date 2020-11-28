@@ -10,13 +10,24 @@ The goal of Clean My Workspace is help you oversee your own chaos with magical f
 - Clean up node_modules folder and free up some space
 - And other more exciting ones, wich I didn't figured out yet.
 
-## Okay!? Now What?
+## Sounds awesome! What's next?
 
 ```bash
-$ npm start
+$ npm i clean-my-workspace -g
+$ cmw
+# Follow the instructions
 # Wait until the server starts, then open your browser at: http://localhost:3000
 ```
 
-## Contribution rules
+## Running locally
 
-I'm to tired to figure them out right now, just don't be jerks!
+```bash
+$ npm start
+# Follow the instructions
+# Wait until the server starts, then open your browser at: http://localhost:3000
+```
+
+## Contribution
+
+Any contribution is very well welcomed, feel free to open a pull request at any time.
+Your ideas are also welcomed, please open an issue with the label: 'enhancement'.
