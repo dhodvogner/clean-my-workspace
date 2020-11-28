@@ -9,3 +9,7 @@ Thumbs.db
 # NodeJs #
 ##########
 node_modules/
+
+# TGZ Files #
+#############
+*.tgz
