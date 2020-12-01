@@ -21,8 +21,8 @@ export function startServer(appDir) {
   app.post('/explore', jsonParser, postExplore);
   app.post('/delete-node-modules', jsonParser, postDeleteNodeModules);
 
-  const server = app.listen(3000, () => {
-    console.log('🚀 Server running on port 3000! Press Crtl+C to exit.');
+  const server = app.listen(3000, 'localhost', () => {
+    console.log('🚀 Server is listening on http://localhost:3000. Press Crtl+C to exit.');
   });
 
   return server;
